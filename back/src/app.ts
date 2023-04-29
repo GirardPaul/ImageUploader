@@ -13,6 +13,7 @@ AppDataSource.initialize()
     useContainer(Container);
 
     const app = createExpressServer({
+      cors: true,
       routePrefix: "/api",
       defaultErrorHandler: false,
       controllers: [DocumentsController],
