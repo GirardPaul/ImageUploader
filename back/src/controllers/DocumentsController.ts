@@ -1,9 +1,15 @@
-import { Body, Get, JsonController, Post, UploadedFile } from "routing-controllers";
+import {
+  Body,
+  Get,
+  JsonController,
+  Param,
+  Post,
+  UploadedFile,
+} from "routing-controllers";
 import { Service } from "typedi";
 import { DocumentsService } from "../services/DocumentsService";
 import { Documents } from "../entities/Documents";
-import { UploadFileDto } from "../lib/UploadFileDto";
-import { DocumentsDto } from "../lib/DocumentsDto";
+import { DocumentsDto, UploadFileDto } from "../lib";
 
 @JsonController("/documents")
 @Service()
@@ -15,6 +21,11 @@ export class DocumentsController {
     return this.documentsService.getAll();
   }
 
+  @Get("/:label")
+  public async download(@Param("label") label: string): Promise<Buffer> {
+    return this.documentsService.getOne(label);
+  }
+
   @Post("/upload")
   public async postUsingUrl(
     @UploadedFile("file") file: UploadFileDto
@@ -22,9 +33,7 @@ export class DocumentsController {
     return this.documentsService.postUsingFile(file);
   }
   @Post()
-  public async post(
-    @Body() dto: DocumentsDto
-  ): Promise<Documents> {
+  public async post(@Body() dto: DocumentsDto): Promise<Documents> {
     return this.documentsService.postUsingUrl(dto);
   }
 }

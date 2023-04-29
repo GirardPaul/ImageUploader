@@ -1,9 +1,10 @@
 import { Service } from "typedi";
 import { Documents } from "../entities/Documents";
-import { DocumentsDto } from "../lib/DocumentsDto";
+import { DocumentsDto, UploadFileDto } from "../lib";
 import { DocumentsRepository } from "../repositories/DocumentsRepository";
 import { CloudinaryService } from "./CloudinaryService";
-import { UploadFileDto } from "../lib/UploadFileDto";
+import { NotFoundError } from "routing-controllers";
+import axios from "axios";
 
 @Service()
 export class DocumentsService {
@@ -13,25 +14,49 @@ export class DocumentsService {
   ) {}
 
   public async getAll(): Promise<Documents[]> {
-    return this.documentsRepository.findAllSorted();
+    const documents: Documents[] =
+      await this.documentsRepository.findAllSorted();
+    return this.documentsRepository.toDtos(documents);
   }
 
-  public async postUsingUrl(dto: DocumentsDto): Promise<Documents> {
-    return this.documentsRepository.save({
+  public async postUsingUrl(dto: DocumentsDto): Promise<DocumentsDto> {
+    const document: Documents = await this.documentsRepository.save({
       label: dto.label,
       url: dto.url,
       createdDate: new Date(),
     });
+
+    return this.documentsRepository.toDto(document);
   }
 
-  public async postUsingFile(file: UploadFileDto): Promise<Documents> {
+  public async postUsingFile(file: UploadFileDto): Promise<DocumentsDto> {
     const base64 = await this.convertBufferToBase64(file);
     const uploadedImage = await this.cloudinaryService.uploadImage(base64);
-    return this.documentsRepository.save({
+    const document: Documents = await this.documentsRepository.save({
       label: file.getLabel(),
       url: uploadedImage.url,
       createdDate: new Date(),
     });
+
+    return this.documentsRepository.toDto(document);
+  }
+
+  public async getOne(label: string): Promise<Buffer> {
+    const document: Documents = await this.documentsRepository.findByLabel(
+      label
+    );
+    if (!document) {
+      throw new NotFoundError(`Document with label : ${label} not found`);
+    }
+    return this.downloadImage(document.url);
+  }
+
+  private async downloadImage(url: string): Promise<Buffer> {
+    const response = await axios.get(url, {
+      responseType: "arraybuffer",
+    });
+    const buffer = await response.data;
+    return Buffer.from(buffer);
   }
 
   private async convertBufferToBase64(file: UploadFileDto): Promise<string> {
