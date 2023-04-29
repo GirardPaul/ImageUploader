@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
+import { saveFile } from "../services/UploadFileService";
 const emit = defineEmits(["showToast"]);
 const fileUploaded = ref(null);
 const isUploading = ref(false);
@@ -22,12 +23,11 @@ const dragFile = (event) => {
   }
 };
 
-const uploadFile = () => {
+const uploadFile = async () => {
   isUploading.value = true;
-  setTimeout(() => {
-    img.value = "https://www.gstatic.com/webp/gallery3/1.png";
-    isUploading.value = false;
-  }, 3000);
+  const url = await saveFile(fileUploaded.value);
+  img.value = url;
+  isUploading.value = false;
 };
 
 const copyLink = () => {
@@ -39,8 +39,8 @@ const resetFile = () => {
   img.value = null;
 };
 
-watch(fileUploaded, (newFile) => {
-  uploadFile();
+watch(fileUploaded, async (newFile) => {
+  await uploadFile();
 });
 </script>
 <template>
@@ -94,6 +94,10 @@ watch(fileUploaded, (newFile) => {
 </template>
 
 <style scoped>
+
+button {
+  white-space: nowrap;
+}
 .reset-button {
   text-decoration: none;
   color: #2f80ed;
@@ -173,6 +177,7 @@ h3 {
 }
 
 .box-drop {
+  max-width: 100%;
   padding: 3.6rem 8rem 4rem 9rem;
   background: #f6f8fb;
   border: 1px dashed #97bef4;
@@ -211,7 +216,7 @@ h3 {
 .img-uploaded {
   width: 100% !important;
   border-radius: 12px;
-  max-height: 25rem;
+  max-height: 22.5rem;
 }
 
 @keyframes progress-animation {
