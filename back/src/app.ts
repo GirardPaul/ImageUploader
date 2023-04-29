@@ -22,7 +22,7 @@ AppDataSource.initialize()
     app.use(express.json({ limit: "50mb" }));
 
     app.listen(3000, () => {
-      console.log("API Image Uploader listening on port 3009!");
+      console.log("API Image Uploader listening on port 3000!");
     });
   })
   .catch((error) => console.log(error));

@@ -30,6 +30,7 @@ export class DocumentsService {
   }
 
   public async postUsingFile(file: UploadFileDto): Promise<DocumentsDto> {
+    console.log(file)
     const base64 = await this.convertBufferToBase64(file);
     const uploadedImage = await this.cloudinaryService.uploadImage(base64);
     const document: Documents = await this.documentsRepository.save({
