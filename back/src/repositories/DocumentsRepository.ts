@@ -20,6 +20,7 @@ export class DocumentsRepository extends AbstractRepository<Documents> {
 
   public toDto(documents: Documents): DocumentsDto {
     return {
+      id: documents.id,
       label: documents.label,
       url: process.env.APP_URL + "/" + documents.label,
     };
