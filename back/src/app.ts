@@ -5,7 +5,7 @@ import { Container } from "typedi";
 import { AppDataSource } from "./config/db/data-source";
 import { DocumentsController } from "./controllers/DocumentsController";
 import { CustomErrorHandler } from "./middlewares/CustomErrorHandler";
-import {config} from "dotenv";
+import { config } from "dotenv";
 config();
 AppDataSource.initialize()
   .then(async () => {
@@ -16,9 +16,16 @@ AppDataSource.initialize()
       routePrefix: "/api",
       defaultErrorHandler: false,
       controllers: [DocumentsController],
-      middlewares: [CustomErrorHandler]
+      middlewares: [CustomErrorHandler],
     });
+
     app.use(express.json({ limit: "50mb" }));
+
+    app.get("/", (req, res) => {
+      return res.json({
+        message: "API Image Uploader",
+      });
+    });
 
     app.listen(3000, () => {
       console.log("API Image Uploader listening on port 3000!");
