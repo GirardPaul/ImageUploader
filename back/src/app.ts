@@ -5,9 +5,8 @@ import { Container } from "typedi";
 import { AppDataSource } from "./config/db/data-source";
 import { DocumentsController } from "./controllers/DocumentsController";
 import { CustomErrorHandler } from "./middlewares/CustomErrorHandler";
-import dotenv from "dotenv";
-dotenv.config();
-
+import {config} from "dotenv";
+config();
 AppDataSource.initialize()
   .then(async () => {
     useContainer(Container);
