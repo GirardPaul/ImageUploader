@@ -1,7 +1,7 @@
 export const saveFile = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  const response = await fetch("http://localhost:3000/api/documents/upload", {
+  const response = await fetch("https://image-uploader-five-rho.vercel.app/api/documents/upload", {
     method: "POST",
     body: formData,
   });
