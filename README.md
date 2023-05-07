@@ -70,6 +70,8 @@ $ cd back
 
 $ npm install
 
+$ cp .env.local .env
+
 $ put your environnement variables ( Cloudinary (CLOUD_NAME, API_KEY, API_SECRET) and Postgres Database URL (API_DB_URL))
 
 $ npm run start
