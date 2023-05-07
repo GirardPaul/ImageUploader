@@ -11,7 +11,7 @@ export class Documents {
   @Column()
   url: string;
 
-  @Column()
+  @Column({ nullable: true })
   cloudinaryPublicUrl: string;
 
   @Column()
