@@ -1,5 +1,6 @@
 import {
   Body,
+  Delete,
   Get,
   JsonController,
   Param,
@@ -8,7 +9,6 @@ import {
 } from "routing-controllers";
 import { Service } from "typedi";
 import { DocumentsService } from "../services/DocumentsService";
-import { Documents } from "../entities/Documents";
 import { DocumentsDto, UploadFileDto } from "../lib";
 
 @JsonController("/documents")
@@ -17,7 +17,7 @@ export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
   @Get()
-  public async getAll(): Promise<Documents[]> {
+  public async getAll(): Promise<DocumentsDto[]> {
     return this.documentsService.getAll();
   }
 
@@ -26,14 +26,19 @@ export class DocumentsController {
     return this.documentsService.getOne(label);
   }
 
+  @Delete("/:id")
+  public async delete(@Param("id") id: number): Promise<DocumentsDto> {
+    return this.documentsService.delete(id);
+  }
+
   @Post("/upload")
   public async postUsingUrl(
     @UploadedFile("file") file: UploadFileDto
-  ): Promise<Documents> {
+  ): Promise<DocumentsDto> {
     return this.documentsService.postUsingFile(file);
   }
   @Post()
-  public async post(@Body() dto: DocumentsDto): Promise<Documents> {
+  public async post(@Body() dto: DocumentsDto): Promise<DocumentsDto> {
     return this.documentsService.postUsingUrl(dto);
   }
 }

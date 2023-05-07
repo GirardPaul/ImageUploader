@@ -6,25 +6,25 @@ import { DocumentsDto } from "../lib";
 
 @Service()
 export class DocumentsRepository extends AbstractRepository<Documents> {
-    constructor() {
-        super(AppDataSource.getRepository(Documents));
-    }
+  constructor() {
+    super(AppDataSource.getRepository(Documents));
+  }
 
-    public async findAllSorted(): Promise<Documents[]> {
-        return this.repository.find({ order: { createdDate: "DESC" } });
-    }
+  public async findAllSorted(): Promise<Documents[]> {
+    return this.repository.find({ order: { createdDate: "DESC" } });
+  }
 
-    public async findByLabel(label: string): Promise<Documents> {
-        return this.repository.findOneBy({ label });
-    }
+  public async findByLabel(label: string): Promise<Documents> {
+    return this.repository.findOneBy({ label });
+  }
 
-    public toDto(documents: Documents): DocumentsDto {
-        return {
-            label: documents.label,
-            url: process.env.APP_URL + '/' + documents.label
-        }
-    }
-    public toDtos (documents: Documents[]): DocumentsDto[] {
-        return documents.map((documents) => this.toDto(documents));
-    }
+  public toDto(documents: Documents): DocumentsDto {
+    return {
+      label: documents.label,
+      url: process.env.APP_URL + "/" + documents.label,
+    };
+  }
+  public toDtos(documents: Documents[]): DocumentsDto[] {
+    return documents.map((documents) => this.toDto(documents));
+  }
 }

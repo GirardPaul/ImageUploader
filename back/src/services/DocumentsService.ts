@@ -13,10 +13,18 @@ export class DocumentsService {
     private readonly cloudinaryService: CloudinaryService
   ) {}
 
-  public async getAll(): Promise<Documents[]> {
+  public async getAll(): Promise<DocumentsDto[]> {
     const documents: Documents[] =
       await this.documentsRepository.findAllSorted();
     return this.documentsRepository.toDtos(documents);
+  }
+
+  public async delete(id: number): Promise<DocumentsDto> { 
+    const document: Documents = await this.documentsRepository.delete(id);
+    if (document && document.cloudinaryPublicUrl) {
+      await this.cloudinaryService.deleteImage(document.cloudinaryPublicUrl);
+    }
+    return this.documentsRepository.toDto(document);
   }
 
   public async postUsingUrl(dto: DocumentsDto): Promise<DocumentsDto> {
@@ -24,19 +32,20 @@ export class DocumentsService {
       label: dto.label,
       url: dto.url,
       createdDate: new Date(),
+      cloudinaryPublicUrl: null
     });
 
     return this.documentsRepository.toDto(document);
   }
 
   public async postUsingFile(file: UploadFileDto): Promise<DocumentsDto> {
-    console.log(file)
     const base64 = await this.convertBufferToBase64(file);
     const uploadedImage = await this.cloudinaryService.uploadImage(base64);
     const document: Documents = await this.documentsRepository.save({
       label: file.getLabel(),
       url: uploadedImage.url,
       createdDate: new Date(),
+      cloudinaryPublicUrl: uploadedImage.public_id
     });
 
     return this.documentsRepository.toDto(document);

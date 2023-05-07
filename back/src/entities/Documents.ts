@@ -12,5 +12,8 @@ export class Documents {
   url: string;
 
   @Column()
+  cloudinaryPublicUrl: string;
+
+  @Column()
   createdDate?: Date;
 }
