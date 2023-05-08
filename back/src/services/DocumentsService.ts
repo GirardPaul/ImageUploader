@@ -1,6 +1,6 @@
 import { Service } from "typedi";
 import { Documents } from "../entities/Documents";
-import { DocumentsDto, UploadFileDto } from "../lib";
+import { DocumentsDto, UploadFileDto, DocumentsSearchDto } from "../lib";
 import { DocumentsRepository } from "../repositories/DocumentsRepository";
 import { CloudinaryService } from "./CloudinaryService";
 import { NotFoundError } from "routing-controllers";
@@ -13,13 +13,12 @@ export class DocumentsService {
     private readonly cloudinaryService: CloudinaryService
   ) {}
 
-  public async getAll(): Promise<DocumentsDto[]> {
-    const documents: Documents[] =
-      await this.documentsRepository.findAllSorted();
+  public async search(dto: DocumentsSearchDto): Promise<DocumentsDto[]> {
+    const documents: Documents[] = await this.documentsRepository.search(dto);
     return this.documentsRepository.toDtos(documents);
   }
 
-  public async delete(id: number): Promise<DocumentsDto> { 
+  public async delete(id: number): Promise<DocumentsDto> {
     const document: Documents = await this.documentsRepository.delete(id);
     if (document && document.cloudinaryPublicUrl) {
       await this.cloudinaryService.deleteImage(document.cloudinaryPublicUrl);
@@ -29,10 +28,10 @@ export class DocumentsService {
 
   public async postUsingUrl(dto: DocumentsDto): Promise<DocumentsDto> {
     const document: Documents = await this.documentsRepository.save({
-      label: dto.label,
+      label: dto.label ? dto.label.toLowerCase() : null,
       url: dto.url,
       createdDate: new Date(),
-      cloudinaryPublicUrl: null
+      cloudinaryPublicUrl: null,
     });
 
     return this.documentsRepository.toDto(document);
@@ -42,10 +41,10 @@ export class DocumentsService {
     const base64 = await this.convertBufferToBase64(file);
     const uploadedImage = await this.cloudinaryService.uploadImage(base64);
     const document: Documents = await this.documentsRepository.save({
-      label: file.getLabel(),
+      label: file.getLabel() ? file.getLabel().toLowerCase() : null,
       url: uploadedImage.url,
       createdDate: new Date(),
-      cloudinaryPublicUrl: uploadedImage.public_id
+      cloudinaryPublicUrl: uploadedImage.public_id,
     });
 
     return this.documentsRepository.toDto(document);

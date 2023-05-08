@@ -2,7 +2,8 @@ import { Service } from "typedi";
 import { AbstractRepository } from "../config/repository/AbstractRepository";
 import { Documents } from "../entities/Documents";
 import { AppDataSource } from "../config/db/data-source";
-import { DocumentsDto } from "../lib";
+import { DocumentsDto, DocumentsSearchDto } from "../lib";
+import { SelectQueryBuilder } from "typeorm";
 
 @Service()
 export class DocumentsRepository extends AbstractRepository<Documents> {
@@ -10,8 +11,16 @@ export class DocumentsRepository extends AbstractRepository<Documents> {
     super(AppDataSource.getRepository(Documents));
   }
 
-  public async findAllSorted(): Promise<Documents[]> {
-    return this.repository.find({ order: { createdDate: "DESC" } });
+  public async search(dto: DocumentsSearchDto): Promise<Documents[]> {
+    const queryBuilder: SelectQueryBuilder<Documents> =
+      this.repository.createQueryBuilder("documents");
+    if (dto.label) {
+      queryBuilder.where("documents.label like :label", {
+        label: `%${dto.label.trim().toLowerCase()}%`,
+      });
+    }
+    queryBuilder.orderBy("documents.createdDate", "DESC");
+    return queryBuilder.getMany();
   }
 
   public async findByLabel(label: string): Promise<Documents> {

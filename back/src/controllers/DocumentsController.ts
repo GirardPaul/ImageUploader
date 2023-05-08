@@ -9,16 +9,16 @@ import {
 } from "routing-controllers";
 import { Service } from "typedi";
 import { DocumentsService } from "../services/DocumentsService";
-import { DocumentsDto, UploadFileDto } from "../lib";
+import { DocumentsDto, UploadFileDto, DocumentsSearchDto } from "../lib";
 
 @JsonController("/documents")
 @Service()
 export class DocumentsController {
   constructor(private readonly documentsService: DocumentsService) {}
 
-  @Get()
-  public async getAll(): Promise<DocumentsDto[]> {
-    return this.documentsService.getAll();
+  @Post("/search")
+  public async search(@Body() dto: DocumentsSearchDto): Promise<DocumentsDto[]> {
+    return this.documentsService.search(dto);
   }
 
   @Get("/:label")
